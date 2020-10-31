@@ -13,36 +13,36 @@
         WindowState="Maximized">
     <Grid>
         <Grid HorizontalAlignment="Right" VerticalAlignment="Top">
-            <ListView x:Name="CustomerListView" Width="400"
-                      Margin="0,5,0,0" Background="Transparent">
+            <ListView x:Name="CustomerListView" Width="400" BorderBrush="Transparent"
+                      Margin="0,5,0,0" Background="Transparent" Padding="50">
                 <ListView.ItemTemplate>
                     <DataTemplate>
+                        <Grid Margin="0,5">
                         <StackPanel>
                             <TextBlock 
-                   FontWeight="ExtraBold" Padding="50"
-                   FontSize="20" Foreground="Blue" TextWrapping="Wrap"
-                                Text="{Binding Text}">
+                   FontSize="15" Foreground="Blue" TextWrapping="Wrap"
+                                Text="{Binding Name}">
                                 <TextBlock.Effect>
-                                    <DropShadowEffect Color="Black"
+                                        <DropShadowEffect Color="White"
                      ShadowDepth="1"
                      Direction="0"/>
                                 </TextBlock.Effect>
-            </TextBlock>
-                        </StackPanel>
+                            </TextBlock>  
+                            <TextBlock 
+                   FontWeight="ExtraBold"
+                   FontSize="20" Foreground="Blue" TextWrapping="Wrap"
+                                Text="{Binding Comment}">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="White"
+                     ShadowDepth="1"
+                     Direction="0"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
+                            </StackPanel>
+                        </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-
-            <TextBlock 
-                   FontWeight="ExtraBold" Padding="50"
-                   FontSize="20" Foreground="Blue" TextWrapping="Wrap">
-                <TextBlock.Effect>
-                    <DropShadowEffect Color="Black"
-                     ShadowDepth="1"
-                     Direction="0"/>
-                </TextBlock.Effect>
-            </TextBlock>
         </Grid>
-
     </Grid>
 </Window>

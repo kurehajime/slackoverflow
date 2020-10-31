@@ -29,6 +29,7 @@ namespace slackoverflow
         private string token;
         private string channel;
         private string channnel_id;
+        private Dictionary<string,string> users;
 
         private ObservableCollection<Message> messages = new ObservableCollection<Message>();
 
@@ -38,6 +39,10 @@ namespace slackoverflow
             token = ConfigurationManager.AppSettings["TOKEN"];
             channel = ConfigurationManager.AppSettings["CHANNEL"];
 
+            // 複数スレッドからコレクション操作できるようにする
+            BindingOperations.EnableCollectionSynchronization(this.messages, new object());
+
+
             this.CustomerListView.ItemsSource = messages;
 
             ManualResetEventSlim clientReady = new ManualResetEventSlim(false);
@@ -45,7 +50,12 @@ namespace slackoverflow
             client.Connect((connected) => {
                 // This is called once the client has emitted the RTM start command
                 clientReady.Set();
-                channnel_id =  connected.channels.Where(x => x.name == channel).Select(x => x.id).FirstOrDefault();
+                if (connected.ok)
+                {
+                    channnel_id = connected?.channels.Where(x => x?.name == channel).Select(x => x.id).FirstOrDefault();
+                    users = connected.users.ToDictionary(x => x.id, x => x.name);
+                }
+
             }, () => {
                 // This is called once the RTM client has connected to the end point
             });
@@ -54,7 +64,12 @@ namespace slackoverflow
                 // Handle each message as you receive them
                 if (message.channel == channnel_id)
                 {
-                    messages.Add(new Message { Text = message.text });
+                    var username = message.username;
+                    if (message.user !=null && users.ContainsKey(message.user)) 
+                    {
+                        username = users[message.user];
+                    }
+                    messages.Add(new Message { Comment = message.text ,Name= "@" + username +" : " });
                 }
             };
             clientReady.Wait();
@@ -63,7 +78,8 @@ namespace slackoverflow
 
         class Message
         {
-            public string Text { get; set; }
+            public string Comment { get; set; }
+            public string Name { get; set; }
         }
 
         #region hidden
