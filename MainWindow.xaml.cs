@@ -5,19 +5,13 @@ using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using slackoverflow.Models;
+using System.Windows.Threading;
+using System.ComponentModel;
 
 namespace slackoverflow
 {
@@ -30,8 +24,9 @@ namespace slackoverflow
         private string channel;
         private string channnel_id;
         private Dictionary<string,string> users;
+        private DispatcherTimer timer=new DispatcherTimer();
 
-        private ObservableCollection<Message> messages = new ObservableCollection<Message>();
+        private ObservableCollection<SMessage> messages = new ObservableCollection<SMessage>();
 
         public MainWindow()
         {
@@ -54,6 +49,17 @@ namespace slackoverflow
                 {
                     channnel_id = connected?.channels.Where(x => x?.name == channel).Select(x => x.id).FirstOrDefault();
                     users = connected.users.ToDictionary(x => x.id, x => x.name);
+
+                    // インターバルを設定
+                    timer.Interval = new TimeSpan(0, 0, 5);
+                    timer.Tick += new EventHandler(MyTimerMethod);
+                    timer.Start();
+                    // 画面が閉じられるときに、タイマを停止
+                    this.Closing += new CancelEventHandler(StopTimer);
+                }
+                else
+                {
+                    MessageBox.Show(connected.error);
                 }
 
             }, () => {
@@ -69,18 +75,34 @@ namespace slackoverflow
                     {
                         username = users[message.user];
                     }
-                    messages.Add(new Message { Comment = message.text ,Name= "@" + username +" : " });
+                    messages.Add(new SMessage { Comment = message.text ,Name= "@" + username +" : " });
                 }
             };
             clientReady.Wait();
 
         }
 
-        class Message
+        // メッセージ加齢
+        private void MyTimerMethod(object sender, EventArgs e)
         {
-            public string Comment { get; set; }
-            public string Name { get; set; }
+            foreach (var message in messages)
+            {
+                message.Life -= 0.2;
+            }
+            for (int i = messages.Count-1; i >=0; i--)
+            {
+                if(messages[i].Life <= 0)
+                {
+                    messages.Remove(messages[i]);
+                }
+            }
         }
+        // タイマを停止
+        private void StopTimer(object sender, CancelEventArgs e)
+        {
+            timer.Stop();
+        }
+
 
         #region hidden
 

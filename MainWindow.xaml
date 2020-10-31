@@ -17,10 +17,10 @@
                       Margin="0,5,0,0" Background="Transparent" Padding="50">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Grid Margin="0,5">
+                        <Grid Margin="0,5"  Opacity="{Binding Life}">
                         <StackPanel>
                             <TextBlock 
-                   FontSize="15" Foreground="Blue" TextWrapping="Wrap"
+                   FontSize="15" Foreground="Blue" TextWrapping="Wrap" 
                                 Text="{Binding Name}">
                                 <TextBlock.Effect>
                                         <DropShadowEffect Color="White"
@@ -33,7 +33,7 @@
                    FontSize="20" Foreground="Blue" TextWrapping="Wrap"
                                 Text="{Binding Comment}">
                                 <TextBlock.Effect>
-                                    <DropShadowEffect Color="White"
+                                        <DropShadowEffect Color="White"
                      ShadowDepth="1"
                      Direction="0"/>
                                 </TextBlock.Effect>
