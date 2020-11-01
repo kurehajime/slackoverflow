@@ -12,6 +12,7 @@ using System.Windows.Interop;
 using slackoverflow.Models;
 using System.Windows.Threading;
 using System.ComponentModel;
+using System.Net;
 
 namespace slackoverflow
 {
@@ -22,6 +23,7 @@ namespace slackoverflow
     {
         private string token;
         private string channel;
+        private string proxy_url;
         private string channnel_id;
         private Dictionary<string,string> users;
         private DispatcherTimer timer=new DispatcherTimer();
@@ -33,6 +35,7 @@ namespace slackoverflow
             InitializeComponent();
             token = ConfigurationManager.AppSettings["TOKEN"];
             channel = ConfigurationManager.AppSettings["CHANNEL"];
+            proxy_url = ConfigurationManager.AppSettings["PROXY"];
 
             // 複数スレッドからコレクション操作できるようにする
             BindingOperations.EnableCollectionSynchronization(this.messages, new object());
@@ -41,7 +44,17 @@ namespace slackoverflow
             this.CustomerListView.ItemsSource = messages;
 
             ManualResetEventSlim clientReady = new ManualResetEventSlim(false);
-            SlackSocketClient client = new SlackSocketClient(token);
+
+            
+            SlackSocketClient client;
+            if(proxy_url == "")
+            {
+                client = new SlackSocketClient(token);
+            }
+            else
+            {
+                client = new SlackSocketClient(token, new System.Net.WebProxy(proxy_url));
+            }
             client.Connect((connected) => {
                 // This is called once the client has emitted the RTM start command
                 clientReady.Set();
